@@ -62,4 +62,6 @@ type Config struct {
 	// Password is a password for authentication.
 	Password string `json:"password"`
 
+	MaxCallSendMsgSize int
+
 }
