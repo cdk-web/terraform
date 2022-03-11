@@ -1,0 +1,27 @@
+{
+  "name": "tfweb-tfcli-wasml",
+  "version": "1.0.0",
+  "description": "Trying to get the TF CLI to compile for wasm.",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "bash scripts/get-terraform.sh",
+    "postinstall": "patch-package && bash scripts/replace-modules.sh",
+    "compile": "GOOS=js GOARCH=wasm go build -o main.wasm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3p3r/tfweb-tfcli-wasml.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/3p3r/tfweb-tfcli-wasml/issues"
+  },
+  "homepage": "https://github.com/3p3r/tfweb-tfcli-wasml#readme",
+  "dependencies": {
+    "npm-run-all": "^4.1.5",
+    "patch-package": "^6.4.7",
+    "terraform": "./terraform-latest.tgz"
+  }
+}
