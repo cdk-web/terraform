@@ -3,10 +3,13 @@
 
 package readline
 
-import "io"
+import (
+	"errors"
+	"io"
+)
 
 type Instance struct {
-	Config    *Config
+	Config *Config
 }
 
 type Config struct {
@@ -19,14 +22,14 @@ type Config struct {
 	InterruptPrompt string
 	EOFPrompt       string
 
-	Stdin       io.ReadCloser
-	Stdout      io.Writer
-	Stderr      io.Writer
+	Stdin  io.ReadCloser
+	Stdout io.Writer
+	Stderr io.Writer
 }
 
 func NewEx(cfg *Config) (*Instance, error) {
 	return &Instance{
-		Config:    cfg,
+		Config: cfg,
 	}, nil
 }
 
@@ -39,3 +42,7 @@ func (i *Instance) Close() error {
 func (i *Instance) Readline() (string, error) {
 	return "", nil
 }
+
+var (
+	ErrInterrupt = errors.New("Interrupt")
+)

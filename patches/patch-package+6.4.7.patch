@@ -1,0 +1,13 @@
+diff --git a/node_modules/patch-package/dist/makePatch.js b/node_modules/patch-package/dist/makePatch.js
+index 985589e..a4c5843 100644
+--- a/node_modules/patch-package/dist/makePatch.js
++++ b/node_modules/patch-package/dist/makePatch.js
+@@ -53,7 +53,7 @@ function makePatch({ packagePathSpecifier, appPath, packageManager, includePaths
+                     packageDetails,
+                     packageManager,
+                     appPath,
+-                }),
++                }).replace('file:', `file:${appPath}/`),
+             },
+             resolutions: resolveRelativeFileDependencies_1.resolveRelativeFileDependencies(appPath, appPackageJson.resolutions || {}),
+         }));
