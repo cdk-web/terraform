@@ -1,30 +1,24 @@
 # Terraform CLI Hacks For WASM
 
-Trying to get the TF CLI to compile for wasm.
+## quick usage
 
-- [Clone the terraform CLI](https://github.com/hashicorp/terraform)
-- [Clone this repository into the cli](https://github.com/mneil/tfweb-tfcli-wasml)
-  - `git clone git@github.com:mneil/tfweb-tfcli-wasml.git tfweb`
+to, install, patch, compile and run:
 
-Patch these modules:
-
-```sh
-go mod edit -replace github.com/chzyer/readline=$PWD/tfweb/readline
-go mod edit -replace github.com/bgentry/speakeasy=$PWD/tfweb/speakeasy
-go mod edit -replace github.com/armon/go-metrics=$PWD/tfweb/go-metrics
-go mod edit -replace github.com/coreos/go-systemd=$PWD/tfweb/go-systemd
-go mod edit -replace go.etcd.io/etcd=$PWD/tfweb/etcd
+```
+npm install
+npm run compile
+npm run serve
 ```
 
-Build Terraform for WASM
+to update the patch with more changes:
 
-```sh
-GOOS=js GOARCH=wasm go build -o main.wasm
+```
+npm run make-patch
 ```
 
-Or try with tinygo. You'll need to replace the trace module
+## scripts
 
-```sh
-go mod edit -replace go.opencensus.io=$PWD/tfweb/opencensus
-tinygo build -o wasm.wasm -target wasm ./main.go
-```
+- `npm install` brings down the latest version of terraform source and makes it a dummy node module
+- `npm postinstall` patches terraform sources in node_modules
+- `npm compile` builds it for wasm in node_modules
+- `npm serve` fires up a dev server
