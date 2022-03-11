@@ -1,0 +1,208 @@
+diff --git a/node_modules/terraform/internal/backend/init/init.go b/node_modules/terraform/internal/backend/init/init.go
+index 30a1ccf..ead9633 100644
+--- a/node_modules/terraform/internal/backend/init/init.go
++++ b/node_modules/terraform/internal/backend/init/init.go
+@@ -11,23 +11,6 @@ import (
+ 	"github.com/zclconf/go-cty/cty"
+ 
+ 	backendLocal "github.com/hashicorp/terraform/internal/backend/local"
+-	backendRemote "github.com/hashicorp/terraform/internal/backend/remote"
+-	backendArtifactory "github.com/hashicorp/terraform/internal/backend/remote-state/artifactory"
+-	backendAzure "github.com/hashicorp/terraform/internal/backend/remote-state/azure"
+-	backendConsul "github.com/hashicorp/terraform/internal/backend/remote-state/consul"
+-	backendCos "github.com/hashicorp/terraform/internal/backend/remote-state/cos"
+-	backendEtcdv2 "github.com/hashicorp/terraform/internal/backend/remote-state/etcdv2"
+-	backendEtcdv3 "github.com/hashicorp/terraform/internal/backend/remote-state/etcdv3"
+-	backendGCS "github.com/hashicorp/terraform/internal/backend/remote-state/gcs"
+-	backendHTTP "github.com/hashicorp/terraform/internal/backend/remote-state/http"
+-	backendInmem "github.com/hashicorp/terraform/internal/backend/remote-state/inmem"
+-	backendKubernetes "github.com/hashicorp/terraform/internal/backend/remote-state/kubernetes"
+-	backendManta "github.com/hashicorp/terraform/internal/backend/remote-state/manta"
+-	backendOSS "github.com/hashicorp/terraform/internal/backend/remote-state/oss"
+-	backendPg "github.com/hashicorp/terraform/internal/backend/remote-state/pg"
+-	backendS3 "github.com/hashicorp/terraform/internal/backend/remote-state/s3"
+-	backendSwift "github.com/hashicorp/terraform/internal/backend/remote-state/swift"
+-	backendCloud "github.com/hashicorp/terraform/internal/cloud"
+ )
+ 
+ // backends is the list of available backends. This is a global variable
+@@ -50,37 +33,7 @@ func Init(services *disco.Disco) {
+ 	defer backendsLock.Unlock()
+ 
+ 	backends = map[string]backend.InitFn{
+-		"local":  func() backend.Backend { return backendLocal.New() },
+-		"remote": func() backend.Backend { return backendRemote.New(services) },
+-
+-		// Remote State backends.
+-		"artifactory": func() backend.Backend { return backendArtifactory.New() },
+-		"azurerm":     func() backend.Backend { return backendAzure.New() },
+-		"consul":      func() backend.Backend { return backendConsul.New() },
+-		"cos":         func() backend.Backend { return backendCos.New() },
+-		"etcd":        func() backend.Backend { return backendEtcdv2.New() },
+-		"etcdv3":      func() backend.Backend { return backendEtcdv3.New() },
+-		"gcs":         func() backend.Backend { return backendGCS.New() },
+-		"http":        func() backend.Backend { return backendHTTP.New() },
+-		"inmem":       func() backend.Backend { return backendInmem.New() },
+-		"kubernetes":  func() backend.Backend { return backendKubernetes.New() },
+-		"manta":       func() backend.Backend { return backendManta.New() },
+-		"oss":         func() backend.Backend { return backendOSS.New() },
+-		"pg":          func() backend.Backend { return backendPg.New() },
+-		"s3":          func() backend.Backend { return backendS3.New() },
+-		"swift":       func() backend.Backend { return backendSwift.New() },
+-
+-		// Terraform Cloud 'backend'
+-		// This is an implementation detail only, used for the cloud package
+-		"cloud": func() backend.Backend { return backendCloud.New(services) },
+-
+-		// Deprecated backends.
+-		"azure": func() backend.Backend {
+-			return deprecateBackend(
+-				backendAzure.New(),
+-				`Warning: "azure" name is deprecated, please use "azurerm"`,
+-			)
+-		},
++		"local": func() backend.Backend { return backendLocal.New() },
+ 	}
+ }
+ 
+diff --git a/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go b/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
+index abf6c5d..53cbd37 100644
+--- a/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
++++ b/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
+@@ -3,33 +3,12 @@
+ 
+ package clistate
+ 
+-import (
+-	"io"
+-	"syscall"
+-)
+-
+ // use fcntl POSIX locks for the most consistent behavior across platforms, and
+ // hopefully some campatibility over NFS and CIFS.
+ func (s *LocalState) lock() error {
+-	flock := &syscall.Flock_t{
+-		Type:   syscall.F_RDLCK | syscall.F_WRLCK,
+-		Whence: int16(io.SeekStart),
+-		Start:  0,
+-		Len:    0,
+-	}
+-
+-	fd := s.stateFileOut.Fd()
+-	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
++	return nil
+ }
+ 
+ func (s *LocalState) unlock() error {
+-	flock := &syscall.Flock_t{
+-		Type:   syscall.F_UNLCK,
+-		Whence: int16(io.SeekStart),
+-		Start:  0,
+-		Len:    0,
+-	}
+-
+-	fd := s.stateFileOut.Fd()
+-	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
++	return nil
+ }
+diff --git a/node_modules/terraform/internal/configs/configload/copy_dir.go b/node_modules/terraform/internal/configs/configload/copy_dir.go
+index 840a7aa..4ad3272 100644
+--- a/node_modules/terraform/internal/configs/configload/copy_dir.go
++++ b/node_modules/terraform/internal/configs/configload/copy_dir.go
+@@ -87,29 +87,5 @@ func copyDir(dst, src string) error {
+ // sameFile tried to determine if to paths are the same file.
+ // If the paths don't match, we lookup the inode on supported systems.
+ func sameFile(a, b string) (bool, error) {
+-	if a == b {
+-		return true, nil
+-	}
+-
+-	aIno, err := inode(a)
+-	if err != nil {
+-		if os.IsNotExist(err) {
+-			return false, nil
+-		}
+-		return false, err
+-	}
+-
+-	bIno, err := inode(b)
+-	if err != nil {
+-		if os.IsNotExist(err) {
+-			return false, nil
+-		}
+-		return false, err
+-	}
+-
+-	if aIno > 0 && aIno == bIno {
+-		return true, nil
+-	}
+-
+-	return false, nil
++	return a == b, nil
+ }
+diff --git a/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go b/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
+index baa991a..864b112 100644
+--- a/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
++++ b/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
+@@ -3,36 +3,12 @@
+ 
+ package statemgr
+ 
+-import (
+-	"io"
+-	"log"
+-	"syscall"
+-)
+-
+ // use fcntl POSIX locks for the most consistent behavior across platforms, and
+ // hopefully some campatibility over NFS and CIFS.
+ func (s *Filesystem) lock() error {
+-	log.Printf("[TRACE] statemgr.Filesystem: locking %s using fcntl flock", s.path)
+-	flock := &syscall.Flock_t{
+-		Type:   syscall.F_RDLCK | syscall.F_WRLCK,
+-		Whence: int16(io.SeekStart),
+-		Start:  0,
+-		Len:    0,
+-	}
+-
+-	fd := s.stateFileOut.Fd()
+-	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
++	return nil
+ }
+ 
+ func (s *Filesystem) unlock() error {
+-	log.Printf("[TRACE] statemgr.Filesystem: unlocking %s using fcntl flock", s.path)
+-	flock := &syscall.Flock_t{
+-		Type:   syscall.F_UNLCK,
+-		Whence: int16(io.SeekStart),
+-		Start:  0,
+-		Len:    0,
+-	}
+-
+-	fd := s.stateFileOut.Fd()
+-	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
++	return nil
+ }
+diff --git a/node_modules/terraform/provider_source.go b/node_modules/terraform/provider_source.go
+index f27ca54..7df229a 100644
+--- a/node_modules/terraform/provider_source.go
++++ b/node_modules/terraform/provider_source.go
+@@ -7,7 +7,6 @@ import (
+ 	"os"
+ 	"path/filepath"
+ 
+-	"github.com/apparentlymart/go-userdirs/userdirs"
+ 	"github.com/hashicorp/terraform-svchost/disco"
+ 
+ 	"github.com/hashicorp/terraform/internal/addrs"
+@@ -155,10 +154,6 @@ func implicitProviderSource(services *disco.Disco) getproviders.Source {
+ 	//   XDG (Unix): lowercase of the first string, "terraform"
+ 	//   Windows:    two-level hierarchy of first two strings, "HashiCorp\Terraform"
+ 	//   OS X:       reverse-DNS unique identifier, "io.terraform".
+-	sysSpecificDirs := userdirs.ForApp("Terraform", "HashiCorp", "io.terraform")
+-	for _, dir := range sysSpecificDirs.DataSearchPaths("plugins") {
+-		addLocalDir(dir)
+-	}
+ 
+ 	// Anything we found in local directories above is excluded from being
+ 	// looked up via the registry source we're about to construct.
