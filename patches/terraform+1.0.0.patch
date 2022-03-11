@@ -219,3 +219,74 @@ index 1ffd8a3..5515f99 100644
  	if err != nil {
  		// It would be very strange to end up here
  		Ui.Error(fmt.Sprintf("Failed to determine current working directory: %s", err))
+diff --git a/node_modules/terraform/internal/command/command.go b/node_modules/terraform/internal/command/command.go
+index 41748d6..ef7dae5 100644
+--- a/node_modules/terraform/internal/command/command.go
++++ b/node_modules/terraform/internal/command/command.go
+@@ -2,7 +2,6 @@ package command
+
+ import (
+ 	"fmt"
+-	"os"
+ 	"runtime"
+ )
+
+@@ -62,10 +61,7 @@ func ModulePath(args []string) (string, error) {
+ 		return "", fmt.Errorf("Too many command line arguments. Did you mean to use -chdir?")
+ 	}
+
+-	path, err := os.Getwd()
+-	if err != nil {
+-		return "", fmt.Errorf("Error getting pwd: %s", err)
+-	}
++	path := "/"
+
+ 	return path, nil
+ }
+diff --git a/node_modules/terraform/internal/command/import.go b/node_modules/terraform/internal/command/import.go
+index a576a29..e5be5b7 100644
+--- a/node_modules/terraform/internal/command/import.go
++++ b/node_modules/terraform/internal/command/import.go
+@@ -4,7 +4,6 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"log"
+-	"os"
+ 	"strings"
+
+ 	"github.com/hashicorp/hcl/v2"
+@@ -27,11 +26,8 @@ type ImportCommand struct {
+
+ func (c *ImportCommand) Run(args []string) int {
+ 	// Get the pwd since its our default -config flag value
+-	pwd, err := os.Getwd()
+-	if err != nil {
+-		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
+-		return 1
+-	}
++	var err error
++	pwd := "/"
+
+ 	var configPath string
+ 	args = c.Meta.process(args)
+diff --git a/node_modules/terraform/internal/command/taint.go b/node_modules/terraform/internal/command/taint.go
+index f2fbbb1..366c8f7 100644
+--- a/node_modules/terraform/internal/command/taint.go
++++ b/node_modules/terraform/internal/command/taint.go
+@@ -2,7 +2,6 @@ package command
+
+ import (
+ 	"fmt"
+-	"os"
+ 	"strings"
+
+ 	"github.com/hashicorp/terraform/internal/addrs"
+@@ -66,7 +65,7 @@ func (c *TaintCommand) Run(args []string) int {
+ 		return 1
+ 	}
+
+-	pwd, err := os.Getwd()
++	pwd := "/"
+ 	if err != nil {
+ 		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
+ 		return 1
