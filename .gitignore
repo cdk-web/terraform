@@ -3,3 +3,4 @@ terraform-latest.tgz
 node_modules
 main.wasm
 wasm_exec.js
+dist

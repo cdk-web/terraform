@@ -2,7 +2,7 @@
   "name": "tfweb-tfcli-wasml",
   "version": "1.0.0",
   "description": "Trying to get the TF CLI to compile for wasm.",
-  "main": "index.js",
+  "private": "true",
   "scripts": {
     "preinstall": "bash scripts/get-terraform.sh",
     "postinstall": "npm-run-all postinstall:*",
@@ -13,7 +13,7 @@
     "postinstall:c": "patch-package",
     "make-patch": "patch-package terraform --exclude='go.mod'",
     "compile": "bash scripts/compile.sh",
-    "serve": "http-serve --cors ."
+    "serve": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,22 @@
   },
   "homepage": "https://github.com/3p3r/tfweb-tfcli-wasml#readme",
   "dependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "memfs": "^3.4.1",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "url": "^0.11.0",
+    "util": "^0.12.4"
+  },
+  "devDependencies": {
     "http-serve": "^1.0.1",
     "npm-run-all": "^4.1.5",
     "patch-package": "^6.4.7",
-    "terraform": "./terraform-latest.tgz"
+    "terraform": "./terraform-latest.tgz",
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
   }
 }

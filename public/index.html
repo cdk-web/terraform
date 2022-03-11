@@ -1,11 +1,18 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
     <link
       href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
       rel="icon"
       type="image/x-icon"
     />
+    <meta charset="utf-8" />
+    <title>Getting Started</title>
+  </head>
+  <body>
+    <button onclick="init()">Terraform Init</button>
+    <button onclick="help()">Terraform Help</button>
+    <script src="main.js"></script>
     <script src="wasm_exec.js"></script>
     <script>
       (async () => {
@@ -25,9 +32,5 @@
         };
       })();
     </script>
-  </head>
-  <body>
-    <button onclick="init()">Terraform Init</button>
-    <button onclick="help()">Terraform Help</button>
   </body>
 </html>
