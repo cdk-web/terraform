@@ -1,17 +1,33 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <link href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" rel="icon" type="image/x-icon" />
+    <link
+      href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      rel="icon"
+      type="image/x-icon"
+    />
     <script src="wasm_exec.js"></script>
     <script>
       (async () => {
         const go = new Go();
         const response = await fetch("main.wasm");
         const buffer = await response.arrayBuffer();
-        const result = await WebAssembly.instantiate(buffer, go.importObject);
-        go.run(result.instance);
+        async function getWasm() {
+          return await WebAssembly.instantiate(buffer, go.importObject);
+        }
+        window.init = async function init() {
+          go.argv = ["terraform", "init"];
+          go.run((await getWasm()).instance);
+        };
+        window.help = async function help() {
+          go.argv = ["js"]; // default
+          go.run((await getWasm()).instance);
+        };
       })();
     </script>
   </head>
-  <body></body>
+  <body>
+    <button onclick="init()">Terraform Init</button>
+    <button onclick="help()">Terraform Help</button>
+  </body>
 </html>
