@@ -10,27 +10,6 @@
     <title>Getting Started</title>
   </head>
   <body>
-    <button onclick="init()">Terraform Init</button>
-    <button onclick="help()">Terraform Help</button>
     <script src="main.js"></script>
-    <script src="wasm_exec.js"></script>
-    <script>
-      (async () => {
-        const go = new Go();
-        const response = await fetch("main.wasm");
-        const buffer = await response.arrayBuffer();
-        async function getWasm() {
-          return await WebAssembly.instantiate(buffer, go.importObject);
-        }
-        window.init = async function init() {
-          go.argv = ["terraform", "init"];
-          go.run((await getWasm()).instance);
-        };
-        window.help = async function help() {
-          go.argv = ["js"]; // default
-          go.run((await getWasm()).instance);
-        };
-      })();
-    </script>
   </body>
 </html>

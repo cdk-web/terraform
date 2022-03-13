@@ -1,14 +1,52 @@
-import { fs } from "memfs";
-import process from "process";
+import { wbTfFs } from "./fs";
+// import for webpack?
+import * as exec from "./wasm_exec";
 
-function component() {
-  const element = document.createElement("div");
-  fs.writeFileSync("/script.sh", "sudo rm -rf *");
-  element.innerHTML = fs.readFileSync("/script.sh");
-  return element;
-}
+const app = async () => {
+  const go = new Go();
 
-global.fs = fs;
-global.process = process;
+  const response = await fetch("main.wasm");
+  const buffer = await response.arrayBuffer();
+  async function getWasm() {
+    return await WebAssembly.instantiate(buffer, go.importObject);
+  }
+  async function init() {
+    go.argv = ["terraform", "init"];
+    return go.run((await getWasm()).instance);
+  }
+  async function help() {
+    go.argv = ["js"]; // default
+    return go.run((await getWasm()).instance);
+  }
 
-document.body.appendChild(component());
+  function component() {
+    const initEl = document.createElement("button");
+    initEl.innerHTML = "Terraform Init";
+    initEl.onclick = init;
+    const helpEl = document.createElement("button");
+    helpEl.innerHTML = "Terraform Help";
+    helpEl.onclick = help;
+    const app = document.createElement("div");
+    const output = document.createElement("div");
+
+    wbTfFs.event.addEventListener("stdout", (out) => {
+      console.log(out.detail);
+      output.innerHTML = out.detail
+        .replace(/\n/g, "<br/>")
+        .replace(/\s/g, "&nbsp;");
+    });
+
+    app.appendChild(initEl);
+    app.appendChild(helpEl);
+    app.appendChild(document.createElement("hr"));
+    app.appendChild(output);
+    return app;
+  }
+
+  const app = component();
+  document.body.appendChild(app);
+};
+
+global.fs = wbTfFs.fs;
+
+app();

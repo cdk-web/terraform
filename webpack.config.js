@@ -28,6 +28,8 @@ module.exports = {
       util: require.resolve("util/"),
       assert: require.resolve("assert/"),
       url: require.resolve("url/"),
+      os: require.resolve("os-browserify/browser"),
+      crypto: require.resolve("crypto-browserify"),
     },
   },
   plugins: [
@@ -35,4 +37,7 @@ module.exports = {
       process: "process/browser",
     }),
   ],
+  stats: {
+    warningsFilter: ["./src/wasm_exec.js"],
+  },
 };
