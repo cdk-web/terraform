@@ -215,7 +215,7 @@ index 1ffd8a3..5515f99 100644
  	args := os.Args[1:]
 
 -	originalWd, err := os.Getwd()
-+	originalWd := "/"
++	originalWd := "/app"
  	if err != nil {
  		// It would be very strange to end up here
  		Ui.Error(fmt.Sprintf("Failed to determine current working directory: %s", err))
@@ -239,7 +239,7 @@ index 41748d6..ef7dae5 100644
 -	if err != nil {
 -		return "", fmt.Errorf("Error getting pwd: %s", err)
 -	}
-+	path := "/"
++	path := "/app"
 
  	return path, nil
  }
@@ -265,7 +265,7 @@ index a576a29..e5be5b7 100644
 -		return 1
 -	}
 +	var err error
-+	pwd := "/"
++	pwd := "/app"
 
  	var configPath string
  	args = c.Meta.process(args)
@@ -286,7 +286,7 @@ index f2fbbb1..366c8f7 100644
  	}
 
 -	pwd, err := os.Getwd()
-+	pwd := "/"
++	pwd := "/app"
  	if err != nil {
  		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
  		return 1
