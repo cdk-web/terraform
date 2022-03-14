@@ -1,8 +1,10 @@
 {
-  "name": "tfweb-tfcli-wasml",
+  "name": "@cdk-web/terraform",
   "version": "1.0.0",
-  "description": "Trying to get the TF CLI to compile for wasm.",
-  "private": "true",
+  "description": "Terraform CLI compiled for WASM",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "preinstall": "bash scripts/get-terraform.sh",
     "postinstall": "npm-run-all postinstall:*",
@@ -18,19 +20,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/3p3r/tfweb-tfcli-wasml.git"
+    "url": "git+https://github.com/cdk-web/terraform.git"
   },
   "terraform": {
     "repo": "https://github.com/hashicorp/terraform",
     "branch": "v1.1.7"
   },
-  "keywords": [],
+  "keywords": [
+    "terraform",
+    "wasm",
+    "iac",
+    "self-service"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/3p3r/tfweb-tfcli-wasml/issues"
+    "url": "https://github.com/cdk-web/terraform/issues"
   },
-  "homepage": "https://github.com/3p3r/tfweb-tfcli-wasml#readme",
+  "homepage": "https://github.com/cdk-web/terraform#readme",
   "devDependencies": {
     "@wasmer/wasmfs": "^0.12.0",
     "assert": "^2.0.0",
