@@ -13,11 +13,16 @@
     "postinstall:c": "patch-package",
     "make-patch": "patch-package terraform --exclude='go.mod'",
     "compile": "bash scripts/compile.sh",
-    "serve": "webpack-dev-server"
+    "serve": "webpack-dev-server",
+    "test": "exit 0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/3p3r/tfweb-tfcli-wasml.git"
+  },
+  "terraform": {
+    "repo": "https://github.com/hashicorp/terraform",
+    "branch": "v1.1.7"
   },
   "keywords": [],
   "author": "",
@@ -42,7 +47,7 @@
     "http-serve": "^1.0.1",
     "npm-run-all": "^4.1.5",
     "patch-package": "^6.4.7",
-    "terraform": "./terraform-latest.tgz",
+    "terraform": "./terraform-src.tgz",
     "webpack": "^5.70.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"
