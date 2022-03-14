@@ -1,5 +1,6 @@
-// import to define Go
-import * as exec from "./wasm_exec";
+// this causes the actual Go/WASM vm to be created and initialized
+import "./wasm_exec"
+
 import { wbTfFs } from "./fs";
 
 export class Terraform extends Go {
