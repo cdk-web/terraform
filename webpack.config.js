@@ -37,7 +37,4 @@ module.exports = {
       process: "process/browser",
     }),
   ],
-  stats: {
-    warningsFilter: ["./src/wasm_exec.js"],
-  },
 };
