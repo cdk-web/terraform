@@ -1,4 +1,7 @@
-# Terraform CLI Hacks For WASM
+# Terraform CLI compiled for WASM
+
+this repository has scripts and build tools to compile the terraform cli for wasm.
+wasm runtime allows the compiled binary to be used in your web browser and NodeJS!
 
 ## quick usage
 

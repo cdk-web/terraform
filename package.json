@@ -13,7 +13,8 @@
     "postinstall:c": "patch-package",
     "make-patch": "patch-package terraform --exclude='go.mod'",
     "compile": "bash scripts/compile.sh",
-    "serve": "webpack-dev-server"
+    "serve": "webpack-dev-server",
+    "test": "exit 0"
   },
   "repository": {
     "type": "git",
