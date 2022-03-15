@@ -4,7 +4,7 @@ index 30a1ccf..ead9633 100644
 +++ b/node_modules/terraform/internal/backend/init/init.go
 @@ -11,23 +11,6 @@ import (
  	"github.com/zclconf/go-cty/cty"
-
+ 
  	backendLocal "github.com/hashicorp/terraform/internal/backend/local"
 -	backendRemote "github.com/hashicorp/terraform/internal/backend/remote"
 -	backendArtifactory "github.com/hashicorp/terraform/internal/backend/remote-state/artifactory"
@@ -24,11 +24,11 @@ index 30a1ccf..ead9633 100644
 -	backendSwift "github.com/hashicorp/terraform/internal/backend/remote-state/swift"
 -	backendCloud "github.com/hashicorp/terraform/internal/cloud"
  )
-
+ 
  // backends is the list of available backends. This is a global variable
 @@ -50,37 +33,7 @@ func Init(services *disco.Disco) {
  	defer backendsLock.Unlock()
-
+ 
  	backends = map[string]backend.InitFn{
 -		"local":  func() backend.Backend { return backendLocal.New() },
 -		"remote": func() backend.Backend { return backendRemote.New(services) },
@@ -64,15 +64,15 @@ index 30a1ccf..ead9633 100644
 +		"local": func() backend.Backend { return backendLocal.New() },
  	}
  }
-
+ 
 diff --git a/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go b/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
 index abf6c5d..53cbd37 100644
 --- a/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
 +++ b/node_modules/terraform/internal/command/clistate/local_state_lock_unix.go
 @@ -3,33 +3,12 @@
-
+ 
  package clistate
-
+ 
 -import (
 -	"io"
 -	"syscall"
@@ -92,7 +92,7 @@ index abf6c5d..53cbd37 100644
 -	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
 +	return nil
  }
-
+ 
  func (s *LocalState) unlock() error {
 -	flock := &syscall.Flock_t{
 -		Type:   syscall.F_UNLCK,
@@ -105,6 +105,77 @@ index abf6c5d..53cbd37 100644
 -	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
 +	return nil
  }
+diff --git a/node_modules/terraform/internal/command/command.go b/node_modules/terraform/internal/command/command.go
+index 41748d6..3bf65df 100644
+--- a/node_modules/terraform/internal/command/command.go
++++ b/node_modules/terraform/internal/command/command.go
+@@ -2,7 +2,6 @@ package command
+ 
+ import (
+ 	"fmt"
+-	"os"
+ 	"runtime"
+ )
+ 
+@@ -62,10 +61,7 @@ func ModulePath(args []string) (string, error) {
+ 		return "", fmt.Errorf("Too many command line arguments. Did you mean to use -chdir?")
+ 	}
+ 
+-	path, err := os.Getwd()
+-	if err != nil {
+-		return "", fmt.Errorf("Error getting pwd: %s", err)
+-	}
++	path := "/app"
+ 
+ 	return path, nil
+ }
+diff --git a/node_modules/terraform/internal/command/import.go b/node_modules/terraform/internal/command/import.go
+index a576a29..0484102 100644
+--- a/node_modules/terraform/internal/command/import.go
++++ b/node_modules/terraform/internal/command/import.go
+@@ -4,7 +4,6 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"log"
+-	"os"
+ 	"strings"
+ 
+ 	"github.com/hashicorp/hcl/v2"
+@@ -27,11 +26,8 @@ type ImportCommand struct {
+ 
+ func (c *ImportCommand) Run(args []string) int {
+ 	// Get the pwd since its our default -config flag value
+-	pwd, err := os.Getwd()
+-	if err != nil {
+-		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
+-		return 1
+-	}
++	var err error
++	pwd := "/app"
+ 
+ 	var configPath string
+ 	args = c.Meta.process(args)
+diff --git a/node_modules/terraform/internal/command/taint.go b/node_modules/terraform/internal/command/taint.go
+index f2fbbb1..67c7d4e 100644
+--- a/node_modules/terraform/internal/command/taint.go
++++ b/node_modules/terraform/internal/command/taint.go
+@@ -2,7 +2,6 @@ package command
+ 
+ import (
+ 	"fmt"
+-	"os"
+ 	"strings"
+ 
+ 	"github.com/hashicorp/terraform/internal/addrs"
+@@ -66,7 +65,7 @@ func (c *TaintCommand) Run(args []string) int {
+ 		return 1
+ 	}
+ 
+-	pwd, err := os.Getwd()
++	pwd := "/app"
+ 	if err != nil {
+ 		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
+ 		return 1
 diff --git a/node_modules/terraform/internal/configs/configload/copy_dir.go b/node_modules/terraform/internal/configs/configload/copy_dir.go
 index 840a7aa..4ad3272 100644
 --- a/node_modules/terraform/internal/configs/configload/copy_dir.go
@@ -145,9 +216,9 @@ index baa991a..864b112 100644
 --- a/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
 +++ b/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
 @@ -3,36 +3,12 @@
-
+ 
  package statemgr
-
+ 
 -import (
 -	"io"
 -	"log"
@@ -169,7 +240,7 @@ index baa991a..864b112 100644
 -	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
 +	return nil
  }
-
+ 
  func (s *Filesystem) unlock() error {
 -	log.Printf("[TRACE] statemgr.Filesystem: unlocking %s using fcntl flock", s.path)
 -	flock := &syscall.Flock_t{
@@ -183,6 +254,19 @@ index baa991a..864b112 100644
 -	return syscall.FcntlFlock(fd, syscall.F_SETLK, flock)
 +	return nil
  }
+diff --git a/node_modules/terraform/main.go b/node_modules/terraform/main.go
+index 38c7141..fd67951 100644
+--- a/node_modules/terraform/main.go
++++ b/node_modules/terraform/main.go
+@@ -187,7 +187,7 @@ func realMain() int {
+ 	binName := filepath.Base(os.Args[0])
+ 	args := os.Args[1:]
+ 
+-	originalWd, err := os.Getwd()
++	originalWd := "/app"
+ 	if err != nil {
+ 		// It would be very strange to end up here
+ 		Ui.Error(fmt.Sprintf("Failed to determine current working directory: %s", err))
 diff --git a/node_modules/terraform/provider_source.go b/node_modules/terraform/provider_source.go
 index f27ca54..7df229a 100644
 --- a/node_modules/terraform/provider_source.go
@@ -190,10 +274,10 @@ index f27ca54..7df229a 100644
 @@ -7,7 +7,6 @@ import (
  	"os"
  	"path/filepath"
-
+ 
 -	"github.com/apparentlymart/go-userdirs/userdirs"
  	"github.com/hashicorp/terraform-svchost/disco"
-
+ 
  	"github.com/hashicorp/terraform/internal/addrs"
 @@ -155,10 +154,6 @@ func implicitProviderSource(services *disco.Disco) getproviders.Source {
  	//   XDG (Unix): lowercase of the first string, "terraform"
@@ -203,90 +287,6 @@ index f27ca54..7df229a 100644
 -	for _, dir := range sysSpecificDirs.DataSearchPaths("plugins") {
 -		addLocalDir(dir)
 -	}
-
+ 
  	// Anything we found in local directories above is excluded from being
  	// looked up via the registry source we're about to construct.
-diff --git a/node_modules/terraform/main.go b/node_modules/terraform/main.go
-index 1ffd8a3..5515f99 100644
---- a/node_modules/terraform/main.go
-+++ b/node_modules/terraform/main.go
-@@ -190,7 +190,7 @@ func realMain() int {
- 	binName := filepath.Base(os.Args[0])
- 	args := os.Args[1:]
-
--	originalWd, err := os.Getwd()
-+	originalWd := "/app"
- 	if err != nil {
- 		// It would be very strange to end up here
- 		Ui.Error(fmt.Sprintf("Failed to determine current working directory: %s", err))
-diff --git a/node_modules/terraform/internal/command/command.go b/node_modules/terraform/internal/command/command.go
-index 41748d6..ef7dae5 100644
---- a/node_modules/terraform/internal/command/command.go
-+++ b/node_modules/terraform/internal/command/command.go
-@@ -2,7 +2,6 @@ package command
-
- import (
- 	"fmt"
--	"os"
- 	"runtime"
- )
-
-@@ -62,10 +61,7 @@ func ModulePath(args []string) (string, error) {
- 		return "", fmt.Errorf("Too many command line arguments. Did you mean to use -chdir?")
- 	}
-
--	path, err := os.Getwd()
--	if err != nil {
--		return "", fmt.Errorf("Error getting pwd: %s", err)
--	}
-+	path := "/app"
-
- 	return path, nil
- }
-diff --git a/node_modules/terraform/internal/command/import.go b/node_modules/terraform/internal/command/import.go
-index a576a29..e5be5b7 100644
---- a/node_modules/terraform/internal/command/import.go
-+++ b/node_modules/terraform/internal/command/import.go
-@@ -4,7 +4,6 @@ import (
- 	"errors"
- 	"fmt"
- 	"log"
--	"os"
- 	"strings"
-
- 	"github.com/hashicorp/hcl/v2"
-@@ -27,11 +26,8 @@ type ImportCommand struct {
-
- func (c *ImportCommand) Run(args []string) int {
- 	// Get the pwd since its our default -config flag value
--	pwd, err := os.Getwd()
--	if err != nil {
--		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
--		return 1
--	}
-+	var err error
-+	pwd := "/app"
-
- 	var configPath string
- 	args = c.Meta.process(args)
-diff --git a/node_modules/terraform/internal/command/taint.go b/node_modules/terraform/internal/command/taint.go
-index f2fbbb1..366c8f7 100644
---- a/node_modules/terraform/internal/command/taint.go
-+++ b/node_modules/terraform/internal/command/taint.go
-@@ -2,7 +2,6 @@ package command
-
- import (
- 	"fmt"
--	"os"
- 	"strings"
-
- 	"github.com/hashicorp/terraform/internal/addrs"
-@@ -66,7 +65,7 @@ func (c *TaintCommand) Run(args []string) int {
- 		return 1
- 	}
-
--	pwd, err := os.Getwd()
-+	pwd := "/app"
- 	if err != nil {
- 		c.Ui.Error(fmt.Sprintf("Error getting pwd: %s", err))
- 		return 1
