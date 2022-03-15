@@ -19,11 +19,11 @@ installGitRepoAsNodeModule() {
   popd
 }
 
-dependencies=$(node -p "Object.keys(require('./package.json').gitDependencies).join('\n')")
+dependencies=$(node -p "Object.keys(require('$__root/package.json').gitDependencies).join('\n')")
 
 for dependency in $dependencies
 do
-  repo=$(node -p "require('./package.json').gitDependencies['${dependency}'].repo")
-  branch=$(node -p "require('./package.json').gitDependencies['${dependency}'].branch")
+  repo=$(node -p "require('$__root/package.json').gitDependencies['${dependency}'].repo")
+  branch=$(node -p "require('$__root/package.json').gitDependencies['${dependency}'].branch")
   test -f $dependency-src.tgz || installGitRepoAsNodeModule $dependency $repo $branch
 done
