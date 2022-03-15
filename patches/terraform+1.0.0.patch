@@ -1,3 +1,26 @@
+diff --git a/node_modules/terraform/.vscode/launch.json b/node_modules/terraform/.vscode/launch.json
+new file mode 100644
+index 0000000..6feb5bc
+--- /dev/null
++++ b/node_modules/terraform/.vscode/launch.json
+@@ -0,0 +1,16 @@
++{
++  // Use IntelliSense to learn about possible attributes.
++  // Hover to view descriptions of existing attributes.
++  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
++  "version": "0.2.0",
++  "configurations": [
++    {
++      "name": "Launch Package",
++      "type": "go",
++      "request": "launch",
++      "mode": "auto",
++      "program": "${workspaceFolder}",
++      "args": ["plan"]
++    }
++  ]
++}
+\ No newline at end of file
 diff --git a/node_modules/terraform/internal/backend/init/init.go b/node_modules/terraform/internal/backend/init/init.go
 index 30a1ccf..ead9633 100644
 --- a/node_modules/terraform/internal/backend/init/init.go
@@ -155,6 +178,31 @@ index a576a29..0484102 100644
  
  	var configPath string
  	args = c.Meta.process(args)
+diff --git a/node_modules/terraform/internal/command/meta_providers.go b/node_modules/terraform/internal/command/meta_providers.go
+index c406e47..58ec67d 100644
+--- a/node_modules/terraform/internal/command/meta_providers.go
++++ b/node_modules/terraform/internal/command/meta_providers.go
+@@ -21,6 +21,9 @@ import (
+ 	"github.com/hashicorp/terraform/internal/providercache"
+ 	"github.com/hashicorp/terraform/internal/providers"
+ 	"github.com/hashicorp/terraform/internal/tfdiags"
++
++	//terraformAwsProvider "terraform-provider-aws/provider"
++	terraformLocalProvider "terraform-provider-local/provider"
+ )
+ 
+ // The TF_DISABLE_PLUGIN_TLS environment variable is intended only for use by
+@@ -269,6 +272,10 @@ func (m *Meta) providerFactories() (map[addrs.Provider]providers.Factory, error)
+ 	unmanagedProviders := m.UnmanagedProviders
+ 
+ 	factories := make(map[addrs.Provider]providers.Factory, len(providerLocks)+len(internalFactories)+len(unmanagedProviders))
++	//factories[addrs.NewBuiltInProvider("aws")] = terraformAwsProvider.Provider
++	factories[addrs.NewBuiltInProvider("local")] = func() (providers.Interface, error) {
++		return terraformLocalProvider.New(), nil
++	}
+ 	for name, factory := range internalFactories {
+ 		factories[addrs.NewBuiltInProvider(name)] = factory
+ 	}
 diff --git a/node_modules/terraform/internal/command/taint.go b/node_modules/terraform/internal/command/taint.go
 index f2fbbb1..67c7d4e 100644
 --- a/node_modules/terraform/internal/command/taint.go
