@@ -2,6 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "bashdb",
+      "request": "launch",
+      "name": "Bash Debugger",
+      "cwd": "${workspaceFolder}",
+      "program": "${file}",
+      "args": []
+    },
+    {
       "name": "Chrome Debugger",
       "request": "launch",
       "type": "pwa-chrome",
