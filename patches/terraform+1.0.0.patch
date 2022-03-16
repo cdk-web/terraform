@@ -179,30 +179,19 @@ index a576a29..0484102 100644
  	var configPath string
  	args = c.Meta.process(args)
 diff --git a/node_modules/terraform/internal/command/meta_providers.go b/node_modules/terraform/internal/command/meta_providers.go
-index c406e47..58ec67d 100644
+index c406e47..dc70688 100644
 --- a/node_modules/terraform/internal/command/meta_providers.go
 +++ b/node_modules/terraform/internal/command/meta_providers.go
-@@ -21,6 +21,9 @@ import (
- 	"github.com/hashicorp/terraform/internal/providercache"
- 	"github.com/hashicorp/terraform/internal/providers"
- 	"github.com/hashicorp/terraform/internal/tfdiags"
-+
-+	//terraformAwsProvider "terraform-provider-aws/provider"
-+	terraformLocalProvider "terraform-provider-local/provider"
- )
- 
- // The TF_DISABLE_PLUGIN_TLS environment variable is intended only for use by
-@@ -269,6 +272,10 @@ func (m *Meta) providerFactories() (map[addrs.Provider]providers.Factory, error)
- 	unmanagedProviders := m.UnmanagedProviders
- 
- 	factories := make(map[addrs.Provider]providers.Factory, len(providerLocks)+len(internalFactories)+len(unmanagedProviders))
-+	//factories[addrs.NewBuiltInProvider("aws")] = terraformAwsProvider.Provider
-+	factories[addrs.NewBuiltInProvider("local")] = func() (providers.Interface, error) {
-+		return terraformLocalProvider.New(), nil
-+	}
- 	for name, factory := range internalFactories {
- 		factories[addrs.NewBuiltInProvider(name)] = factory
+@@ -340,6 +340,9 @@ func (m *Meta) internalProviders() map[string]providers.Factory {
+ 		"test": func() (providers.Interface, error) {
+ 			return moduletest.NewProvider(), nil
+ 		},
++		"local": func() (providers.Interface, error) {
++			return providers.NewBundledTerraformLocalProvider(), nil
++		},
  	}
+ }
+ 
 diff --git a/node_modules/terraform/internal/command/taint.go b/node_modules/terraform/internal/command/taint.go
 index f2fbbb1..67c7d4e 100644
 --- a/node_modules/terraform/internal/command/taint.go
@@ -259,6 +248,66 @@ index 840a7aa..4ad3272 100644
 -	return false, nil
 +	return a == b, nil
  }
+diff --git a/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go b/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go
+new file mode 100644
+index 0000000..0cc77e7
+--- /dev/null
++++ b/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go
+@@ -0,0 +1,54 @@
++package providers
++
++import (
++	"context"
++	bundledLocalProvider "terraform-provider-local"
++)
++
++type BundledTerraformLocalProvider struct {
++	bundledProvider bundledLocalProvider.ProviderType
++	bundledContext  context.Context
++}
++
++func NewBundledTerraformLocalProvider() BundledTerraformLocalProvider {
++	return BundledTerraformLocalProvider{
++		bundledContext:  context.Background(),
++		bundledProvider: bundledLocalProvider.NewProvider(),
++	}
++}
++
++func (BundledTerraformLocalProvider) GetProviderSchema() GetProviderSchemaResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ValidateProviderConfig(ValidateProviderConfigRequest) ValidateProviderConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ValidateResourceConfig(ValidateResourceConfigRequest) ValidateResourceConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ValidateDataResourceConfig(ValidateDataResourceConfigRequest) ValidateDataResourceConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) UpgradeResourceState(UpgradeResourceStateRequest) UpgradeResourceStateResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ConfigureProvider(ConfigureProviderRequest) ConfigureProviderResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) Stop() error { panic("not implemented") }
++func (BundledTerraformLocalProvider) ReadResource(ReadResourceRequest) ReadResourceResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) PlanResourceChange(PlanResourceChangeRequest) PlanResourceChangeResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ApplyResourceChange(ApplyResourceChangeRequest) ApplyResourceChangeResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ImportResourceState(ImportResourceStateRequest) ImportResourceStateResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) ReadDataSource(ReadDataSourceRequest) ReadDataSourceResponse {
++	panic("not implemented")
++}
++func (BundledTerraformLocalProvider) Close() error { panic("not implemented") }
 diff --git a/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go b/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
 index baa991a..864b112 100644
 --- a/node_modules/terraform/internal/states/statemgr/filesystem_lock_unix.go
@@ -338,3 +387,7 @@ index f27ca54..7df229a 100644
  
  	// Anything we found in local directories above is excluded from being
  	// looked up via the registry source we're about to construct.
+diff --git a/node_modules/terraform/terraform b/node_modules/terraform/terraform
+new file mode 100755
+index 0000000..6c27aa6
+Binary files /dev/null and b/node_modules/terraform/terraform differ
