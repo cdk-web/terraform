@@ -179,15 +179,18 @@ index a576a29..0484102 100644
  	var configPath string
  	args = c.Meta.process(args)
 diff --git a/node_modules/terraform/internal/command/meta_providers.go b/node_modules/terraform/internal/command/meta_providers.go
-index c406e47..dc70688 100644
+index c406e47..cc35c6d 100644
 --- a/node_modules/terraform/internal/command/meta_providers.go
 +++ b/node_modules/terraform/internal/command/meta_providers.go
-@@ -340,6 +340,9 @@ func (m *Meta) internalProviders() map[string]providers.Factory {
+@@ -340,6 +340,12 @@ func (m *Meta) internalProviders() map[string]providers.Factory {
  		"test": func() (providers.Interface, error) {
  			return moduletest.NewProvider(), nil
  		},
 +		"local": func() (providers.Interface, error) {
 +			return providers.NewBundledTerraformLocalProvider(), nil
++		},
++		"aws": func() (providers.Interface, error) {
++			return providers.NewBundledTerraformAwsProvider(), nil
 +		},
  	}
  }
@@ -248,6 +251,66 @@ index 840a7aa..4ad3272 100644
 -	return false, nil
 +	return a == b, nil
  }
+diff --git a/node_modules/terraform/internal/providers/bundled-terraform-aws-provider.go b/node_modules/terraform/internal/providers/bundled-terraform-aws-provider.go
+new file mode 100644
+index 0000000..aef8084
+--- /dev/null
++++ b/node_modules/terraform/internal/providers/bundled-terraform-aws-provider.go
+@@ -0,0 +1,54 @@
++package providers
++
++import (
++	"context"
++	bundledAwsProvider "terraform-provider-aws"
++)
++
++type BundledTerraformAwsProvider struct {
++	bundledProvider bundledAwsProvider.ProviderType
++	bundledContext  context.Context
++}
++
++func NewBundledTerraformAwsProvider() BundledTerraformAwsProvider {
++	return BundledTerraformAwsProvider{
++		bundledContext:  context.Background(),
++		bundledProvider: bundledAwsProvider.NewProvider(),
++	}
++}
++
++func (BundledTerraformAwsProvider) GetProviderSchema() GetProviderSchemaResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ValidateProviderConfig(ValidateProviderConfigRequest) ValidateProviderConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ValidateResourceConfig(ValidateResourceConfigRequest) ValidateResourceConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ValidateDataResourceConfig(ValidateDataResourceConfigRequest) ValidateDataResourceConfigResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) UpgradeResourceState(UpgradeResourceStateRequest) UpgradeResourceStateResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ConfigureProvider(ConfigureProviderRequest) ConfigureProviderResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) Stop() error { panic("not implemented") }
++func (BundledTerraformAwsProvider) ReadResource(ReadResourceRequest) ReadResourceResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) PlanResourceChange(PlanResourceChangeRequest) PlanResourceChangeResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ApplyResourceChange(ApplyResourceChangeRequest) ApplyResourceChangeResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ImportResourceState(ImportResourceStateRequest) ImportResourceStateResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) ReadDataSource(ReadDataSourceRequest) ReadDataSourceResponse {
++	panic("not implemented")
++}
++func (BundledTerraformAwsProvider) Close() error { panic("not implemented") }
 diff --git a/node_modules/terraform/internal/providers/bundled-terraform-local-provider.go b/node_modules/terraform/internal/providers/bundled-terraform-local-provider.go
 new file mode 100644
 index 0000000..0cc77e7

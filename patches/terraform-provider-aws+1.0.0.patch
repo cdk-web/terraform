@@ -1,0 +1,60 @@
+diff --git a/node_modules/terraform-provider-aws/main.go b/node_modules/terraform-provider-aws/main.go
+deleted file mode 100644
+index 11dbe63..0000000
+--- a/node_modules/terraform-provider-aws/main.go
++++ /dev/null
+@@ -1,34 +0,0 @@
+-package main
+-
+-import (
+-	"context"
+-	"flag"
+-	"log"
+-
+-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+-	"terraform-provider-aws/internal/provider"
+-)
+-
+-func main() {
+-	var debugMode bool
+-
+-	flag.BoolVar(&debugMode, "debug", false, "set to true to run the provider with support for debuggers like delve")
+-	flag.Parse()
+-
+-	opts := &plugin.ServeOpts{ProviderFunc: provider.Provider}
+-
+-	if debugMode {
+-		err := plugin.Debug(context.Background(), "registry.terraform.io/hashicorp/aws", opts)
+-
+-		if err != nil {
+-			log.Fatal(err.Error())
+-		}
+-
+-		return
+-	}
+-
+-	logFlags := log.Flags()
+-	logFlags = logFlags &^ (log.Ldate | log.Ltime)
+-	log.SetFlags(logFlags)
+-	plugin.Serve(opts)
+-}
+diff --git a/node_modules/terraform-provider-aws/provider.go b/node_modules/terraform-provider-aws/provider.go
+new file mode 100644
+index 0000000..6e2605e
+--- /dev/null
++++ b/node_modules/terraform-provider-aws/provider.go
+@@ -0,0 +1,14 @@
++package provider
++
++import (
++	"terraform-provider-aws/internal/provider"
++
++	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
++	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
++)
++
++func NewProvider() tfprotov5.ProviderServer {
++	return schema.NewGRPCProviderServer(provider.Provider())
++}
++
++type ProviderType = tfprotov5.ProviderServer
