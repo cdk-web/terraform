@@ -248,11 +248,11 @@ index 840a7aa..4ad3272 100644
 -	return false, nil
 +	return a == b, nil
  }
-diff --git a/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go b/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go
+diff --git a/node_modules/terraform/internal/providers/bundled-terraform-local-provider.go b/node_modules/terraform/internal/providers/bundled-terraform-local-provider.go
 new file mode 100644
 index 0000000..0cc77e7
 --- /dev/null
-+++ b/node_modules/terraform/internal/providers/bundled-terraform-local-providers.go
++++ b/node_modules/terraform/internal/providers/bundled-terraform-local-provider.go
 @@ -0,0 +1,54 @@
 +package providers
 +
