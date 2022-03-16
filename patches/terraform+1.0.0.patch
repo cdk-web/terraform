@@ -387,7 +387,3 @@ index f27ca54..7df229a 100644
  
  	// Anything we found in local directories above is excluded from being
  	// looked up via the registry source we're about to construct.
-diff --git a/node_modules/terraform/terraform b/node_modules/terraform/terraform
-new file mode 100755
-index 0000000..6c27aa6
-Binary files /dev/null and b/node_modules/terraform/terraform differ

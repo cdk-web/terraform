@@ -1,6 +1,6 @@
 diff --git a/node_modules/terraform-provider-local/main.go b/node_modules/terraform-provider-local/main.go
 deleted file mode 100644
-index f012069..0000000
+index 9d4abd6..0000000
 --- a/node_modules/terraform-provider-local/main.go
 +++ /dev/null
 @@ -1,11 +0,0 @@
@@ -8,7 +8,7 @@ index f012069..0000000
 -
 -import (
 -	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
--	"github.com/terraform-providers/terraform-provider-local/internal/provider"
+-	"terraform-provider-local/internal/provider"
 -)
 -
 -func main() {

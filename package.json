@@ -36,11 +36,13 @@
     },
     "terraform-provider-local": {
       "repo": "https://github.com/hashicorp/terraform-provider-local",
-      "branch": "v2.2.2"
+      "branch": "v2.2.2",
+      "postClone": "bash scripts/inline-modules.sh"
     },
     "terraform-provider-aws": {
       "repo": "https://github.com/hashicorp/terraform-provider-aws",
-      "branch": "v4.5.0"
+      "branch": "v4.5.0",
+      "postClone": "bash scripts/inline-modules.sh"
     }
   },
   "keywords": [
