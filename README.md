@@ -1,5 +1,10 @@
 # Terraform CLI compiled for WASM
 
+> this project is now archived and kept here for the sake of brevity and preserving work. you should not use this.
+
+> this project is left here due to current limitations of WASM in Go and lack of DWARF support and the shear size of the
+> AWS provider built by Hashicorp when compiled to WASM (>2GB).
+
 this repository has scripts and build tools to compile the terraform cli for wasm.
 wasm runtime allows the compiled binary to be used in your web browser and NodeJS!
 
