@@ -1,0 +1,37 @@
+diff --git a/node_modules/terraform-provider-local/main.go b/node_modules/terraform-provider-local/main.go
+deleted file mode 100644
+index 9d4abd6..0000000
+--- a/node_modules/terraform-provider-local/main.go
++++ /dev/null
+@@ -1,11 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+-	"terraform-provider-local/internal/provider"
+-)
+-
+-func main() {
+-	plugin.Serve(&plugin.ServeOpts{
+-		ProviderFunc: provider.New})
+-}
+diff --git a/node_modules/terraform-provider-local/provider.go b/node_modules/terraform-provider-local/provider.go
+new file mode 100644
+index 0000000..45dd671
+--- /dev/null
++++ b/node_modules/terraform-provider-local/provider.go
+@@ -0,0 +1,14 @@
++package provider
++
++import (
++	"terraform-provider-local/internal/provider"
++
++	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
++	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
++)
++
++func NewProvider() tfprotov5.ProviderServer {
++	return schema.NewGRPCProviderServer(provider.New())
++}
++
++type ProviderType = tfprotov5.ProviderServer

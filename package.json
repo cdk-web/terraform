@@ -6,14 +6,19 @@
     "access": "public"
   },
   "scripts": {
-    "preinstall": "bash scripts/get-terraform.sh",
+    "preinstall": "bash scripts/get-git-deps.sh",
     "postinstall": "npm-run-all postinstall:*",
-    "postinstall:a": "bash scripts/replace-modules.sh",
+    "postinstall:a": "npm-run-all postinstall-a:*",
+    "postinstall-a:a": "bash scripts/replace-modules.sh",
+    "postinstall-a:b": "bash scripts/init-git-deps.sh",
     "postinstall:b": "npm-run-all postinstall-b:* || exit 0",
     "postinstall-b:a": "git apply --check patches/patch-package+6.4.7.patch",
     "postinstall-b:b": "git apply patches/patch-package+6.4.7.patch",
     "postinstall:c": "patch-package",
-    "make-patch": "patch-package terraform --exclude='go.mod'",
+    "make-patch": "npm-run-all --continue-on-error make-patch:*",
+    "make-patch:a": "patch-package terraform --exclude='(go\\.mod|go\\.sum)'",
+    "make-patch:b": "patch-package terraform-provider-aws --exclude='(go\\.mod|go\\.sum)'",
+    "make-patch:c": "patch-package terraform-provider-local --exclude='(go\\.mod|go\\.sum)'",
     "compile": "npm-run-all compile:*",
     "compile:a": "bash scripts/compile.sh",
     "compile:b": "webpack",
@@ -24,9 +29,21 @@
     "type": "git",
     "url": "git+https://github.com/cdk-web/terraform.git"
   },
-  "terraform": {
-    "repo": "https://github.com/hashicorp/terraform",
-    "branch": "v1.1.7"
+  "gitDependencies": {
+    "terraform": {
+      "repo": "https://github.com/hashicorp/terraform",
+      "branch": "v1.1.7"
+    },
+    "terraform-provider-local": {
+      "repo": "https://github.com/hashicorp/terraform-provider-local",
+      "branch": "v2.2.2",
+      "postClone": "bash scripts/inline-modules.sh"
+    },
+    "terraform-provider-aws": {
+      "repo": "https://github.com/hashicorp/terraform-provider-aws",
+      "branch": "v4.5.0",
+      "postClone": "bash scripts/inline-modules.sh"
+    }
   },
   "keywords": [
     "terraform",
@@ -53,6 +70,8 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "terraform": "./terraform-src.tgz",
+    "terraform-provider-aws": "./terraform-provider-aws-src.tgz",
+    "terraform-provider-local": "./terraform-provider-local-src.tgz",
     "url": "^0.11.0",
     "util": "^0.12.4",
     "webpack": "^5.70.0",

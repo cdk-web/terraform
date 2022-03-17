@@ -6,6 +6,7 @@ __root=$(dirname "$__dirname")
 
 pushd $__root
   pushd node_modules/terraform
+    go get
     GOOS=js GOARCH=wasm go build -o ../../public/main.wasm
     sed 's/require = require/require = __webpack_require__/g' \
       "$(go env GOROOT)/misc/wasm/wasm_exec.js" > $__root/src/wasm_exec.js
